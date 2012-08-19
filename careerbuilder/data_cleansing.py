@@ -3,9 +3,9 @@ from pylab import *
 
 class StringCleaner(object):
     
-    def __init__(self):
-        self.stop_words_f = 'stop_words.txt'
-        self.stop_words = self.load_stop_words()
+    def __init__(self, stopwords_f=None):
+        if stopwords_f is not None:
+            self.stop_words = self.load_stop_words(stopwords_f)
         
     def clean(self, s, rem_stopwords=True, badlist=None):
         s = re.sub(r'[A-Z][A-Z0-9 .\?\,\(\)]{6,}\s+',' ',s) # remove boilerplate
@@ -25,10 +25,10 @@ class StringCleaner(object):
             s = s.replace(b,' ')
         return s
     
-    def load_stop_words(self):
+    def load_stop_words(self, stop_words_f):
         '''load the list of stop words from a text file'''
         stop_words = set()
-        for l in open(self.stop_words_f):
+        for l in open(stop_words_f):
             l = l.strip()
             if l != '':
                 stop_words.add(l)
