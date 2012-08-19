@@ -20,7 +20,7 @@ class StringCleaner(object):
         for b in self.bad_list:
             bs = ' %s ' % b
             if bs in s:
-                s = s.replace(bs,'')
+                s = s.replace(bs,' ')
         return s
 
 
