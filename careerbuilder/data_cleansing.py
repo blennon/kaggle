@@ -12,8 +12,8 @@ class StringCleaner(object):
         s = s.lower()
         s = self.remove_bad(s)
         s = re.sub('[^a-zA-Z ]',' ',s)
-        s = ' '.join([w for w in s.split(' ') if len(w)>1]) #remove single letters
         s = re.sub(' {2,}',' ',s) # remove extra spaces
+        s = ' '.join([w for w in s.split(' ') if len(w)>1]) #remove single letters
         return s
     
     def remove_bad(self, s):
