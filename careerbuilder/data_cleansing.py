@@ -4,23 +4,42 @@ from pylab import *
 class StringCleaner(object):
     
     def __init__(self):
-        self.bad_list = ['of','for','and','by','the','in','at']
+        self.stop_words_f = 'stop_words.txt'
+        self.stop_words = self.load_stop_words()
         
-    def clean(self, s):
+    def clean(self, s, rem_stopwords=True, badlist=None):
         s = re.sub(r'[A-Z][A-Z0-9 .\?\,\(\)]{6,}\s+',' ',s) # remove boilerplate
         s = re.sub("([a-z])([A-Z])","\g<1> \g<2>",s) #split camelCase words
         s = s.lower()
-        s = self.remove_bad(s)
+        if badlist is not None:
+            s = self.remove_bad(s, badlist)
         s = re.sub('[^a-zA-Z ]',' ',s)
         s = re.sub(' [a-z] ', ' ', s) #remove single letters
+        if rem_stopwords:
+            s = self.remove_stop_words(s)
         s = re.sub(' {2,}',' ',s) # remove extra spaces
         return s
     
-    def remove_bad(self, s):
-        for b in self.bad_list:
-            bs = ' %s ' % b
-            if bs in s:
-                s = s.replace(bs,' ')
+    def remove_bad(self, s, badlist):
+        for b in badlist:
+            s = s.replace(b,' ')
+        return s
+    
+    def load_stop_words(self):
+        '''load the list of stop words from a text file'''
+        stop_words = set()
+        for l in open(self.stop_words_f):
+            l = l.strip()
+            if l != '':
+                stop_words.add(l)
+        return stop_words
+    
+    def remove_stop_words(self, s):
+        '''remove stop words from self.words'''
+        for w in self.stop_words:
+            w_s = ' %s ' % w
+            if w_s in s:
+                s = s.replace(w_s,' ')
         return s
 
 
