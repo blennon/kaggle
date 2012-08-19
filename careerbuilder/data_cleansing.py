@@ -1,4 +1,5 @@
 import re
+import operator
 from pylab import *
 
 class StringCleaner(object):
