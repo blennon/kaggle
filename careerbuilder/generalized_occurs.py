@@ -75,10 +75,10 @@ class AppJobZipUserZip(Occurs):
 class JobWordsJobOccurs(Occurs):
     '''co-occur job description word tokens with job tokens'''
     
-    def __init__(self, Jobs, JobTokens, JobWordsTokens, word_type):
+    def __init__(self, Jobs, JobTokens, JobWordsTokens, StringCleaner, word_type):
         self.Jobs = Jobs
         self.JobTokens, self.JobWordsTokens = JobTokens, JobWordsTokens
-        self.SC = StringCleaner('/media/git/kaggle/careerbuilder/stop_words.txt')
+        self.SC = StringCleaner
         self.html = ['span','font','style','text','decoration','layout','grid','line','size','margin','none',
                      'bold','underline','li','il','ul','align','justify','div','strong','layout','id','pt']
         self.occurs = dok_matrix((JobWordsTokens.token_count(),JobTokens.token_count()))
