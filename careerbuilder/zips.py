@@ -3,25 +3,28 @@ from pylab import *
 class Zips(object):
     
     def __init__(self, zips_csv='/media/data/zips/zips.csv'):
-        self.zips = self.load_zips(zips_csv)
+        self.zips, self.cities = self.load(zips_csv)
         
-    def load_zips(self, zips_csv):
+    def load(self, zips_csv):
         '''load the zipcode data into a dictionary from a csv'''
-        zips_dict = {}
+        zips_dict, city_dict = {}, {}
         zips_f = open(zips_csv)
         header = zips_f.readline().strip().split(',')
         for l in zips_f:
             zip,state_abr,lat,long_,city,state = l.strip().split('", "')
+            lat,long_ = float(lat), float(long_)
+            state = state[0:-1]
+            city, state_abr = city.lower(), state_abr.lower()
+            city_dict[(city,state_abr)] = {'lat':lat,'long':long_}
             try:
                 zip = int(zip[1:])
             except ValueError:
                 continue
-            lat,long_ = float(lat), float(long_)
-            state = state[0:-1]
+            city_dict[(city,state_abr)]['zip'] = zip
             zips_dict[zip] = {'lat':lat,'long':long_,'city':city,'state':state,
                               'state_abr':state_abr}
-        return zips_dict
-        
+        return zips_dict, city_dict
+                       
     def zip_dist(self, zip1, zip2):
         '''find the distance (miles) between zip1 and zip2'''
         if zip1 == zip2:
@@ -31,10 +34,21 @@ class Zips(object):
         
         return Zips.lat_long_dist(lat1,long1,lat2,long2)
     
-    def lat_long_lookup(self, zip):
-        '''return lat/long values for a zip'''
-        return self.zips[zip]['lat'], self.zips[zip]['long']
-    
+    def lat_long_lookup(self, place):
+        '''
+        return lat/long values for a place
+        place can be either a zip (int) or (city,state_abr) tuple
+        '''
+        if isinstance(place,int):
+            z = self.zips[zip]
+            return z['lat'], z['long']
+        elif isinstance(place,tuple):
+            (city,state) = place[0].lower(),place[1].lower()
+            c = self.cities[(city,state)]
+            return c['lat'], c['long']
+        else:
+            raise Exception('place can be either a zip (int) or (city,state_abr) tuple')    
+            
     @staticmethod
     def lat_long_dist(lat_A, long_A, lat_B, long_B):
         '''return distance in miles between two lat/long coordinates'''
