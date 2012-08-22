@@ -40,7 +40,7 @@ class Zips(object):
         place can be either a zip (int) or (city,state_abr) tuple
         '''
         if isinstance(place,int):
-            z = self.zips[zip]
+            z = self.zips[place]
             return z['lat'], z['long']
         elif isinstance(place,tuple):
             (city,state) = place[0].lower(),place[1].lower()
