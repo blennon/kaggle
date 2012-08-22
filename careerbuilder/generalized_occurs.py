@@ -47,8 +47,100 @@ class Occurs(object):
             f.close()
         else:
             raise Exception('format must be mm or graphlab')
+
+class AppJobZipUserZip(Occurs):
+    '''co-occur when a job in zip is applied to by a user in zip'''
+    
+    def __init__(self,Users,Jobs,ZipTokens):
+        self.Users, self.Jobs = Users, Jobs
+        self.ZipTokens = ZipTokens
+        self.occurs = dok_matrix((ZipTokens.token_count(),ZipTokens.token_count()))
+        self.co_occur('/media/kaggle/careerbuilder/data/apps.tsv')
+    
+    def co_occur(self, apps_f):
+        apps_f = open(apps_f)
+        header = apps_f.readline()
+        for l in apps_f:
+            l = l.strip().split('\t')
+            u_tok, j_tok = int(l[0]), int(l[-1])
+            u_zip, j_zip = self.Users[u_tok]['ZipCode'], self.Jobs[j_tok]['Zip5']
+            if u_zip is None or j_zip is None:
+                continue
+            try:
+                u_zip_ind, j_zip_ind = self.ZipTokens.token2id(u_zip), self.ZipTokens.token2id(j_zip)
+            except KeyError:
+                continue
+            self.occurs[j_zip_ind,u_zip_ind] += 1.0        
+
+class JobWordsJobOccurs(Occurs):
+    '''co-occur job description word tokens with job tokens'''
+    
+    def __init__(self, Jobs, JobTokens, JobWordsTokens, word_type):
+        self.Jobs = Jobs
+        self.JobTokens, self.JobWordsTokens = JobTokens, JobWordsTokens
+        self.SC = StringCleaner('/media/git/kaggle/careerbuilder/stop_words.txt')
+        self.html = ['span','font','style','text','decoration','layout','grid','line','size','margin','none',
+                     'bold','underline','li','il','ul','align','justify','div','strong','layout','id','pt']
+        self.occurs = dok_matrix((JobWordsTokens.token_count(),JobTokens.token_count()))
+        self.co_occur(word_type)
         
+    def co_occur(self,attr):
+        for j_tok, j_id in self.JobTokens.tokens2ids.iteritems():
+            
+            # clean string
+            try:
+                j_words = BeautifulSoup(self.Jobs[j_tok][attr]).get_text()
+            except:
+                j_words = self.Jobs[j_tok][attr]
+                j_words = self.SC.clean(j_words,rem_stopwords=True,badlist=['\\r\\n','\\r'])
+                j_words = self.SC.clean(j_words,rem_stopwords=True,badlist=self.html)
+            j_words = self.SC.clean(j_words,rem_stopwords=True,badlist=['\\r\\n','\\r'])
+            
+            # co-occur words in string with j_id
+            for w in j_words:
+                try:
+                    w_ind = self.JobWordsTokens.token2id(w)
+                except KeyError:
+                    continue
+                self.occurs[w_ind,j_id] += 1.0
+                       
+class JobZipOccurs(Occurs):
+    
+    def __init__(self, Jobs, JobTokens, ZipTokens):
+        self.Jobs = Jobs
+        self.JobTokens, self.ZipTokens = JobTokens, ZipTokens
+        self.occurs = dok_matrix((ZipTokens.token_count(),JobTokens.token_count()))
+        self.co_occur()
         
+    def co_occur(self):
+        for j_tok, j_id in self.JobTokens.tokens2ids.iteritems():
+            j_zip = self.Jobs[j_tok]['Zip5']
+            if j_zip is not None:
+                try:
+                    self.occurs[self.ZipTokens.token2id(j_zip),j_id] = 1.0
+                except KeyError:
+                    continue
+                
+class TitleJobOccurs(Occurs):
+    '''co-occur job titles with job ids'''
+    
+    def __init__(self, Jobs, JobTokens, TitleTokens, StringCleaner):
+        self.Jobs = Jobs
+        self.JobTokens, self.TitleTokens = JobTokens, TitleTokens
+        self.StringCleaner = StringCleaner
+        self.occurs = dok_matrix((TitleTokens.token_count(),JobTokens.token_count()))
+        self.occur()
+    
+    def occur(self):
+        for j_tok, j_ind in self.JobTokens.tokens2ids.iteritems():
+            j_title = self.StringCleaner.clean(self.Jobs[j_tok]['Title'],rem_stopwords=False)
+            for w in j_title.split(' '):
+                try:
+                    w_ind = self.TitleTokens.tokens2ids[w]
+                except KeyError:
+                    continue
+                self.occurs[w_ind,j_ind] += 1.0
+                                 
 class UserAttributeOccurs(Occurs):
     
     def __init__(self, Users, UserTokens, AttTokens, attr_str):
@@ -94,8 +186,9 @@ class UserTitleAppliedOccurs(Occurs):
         self.UserTokens, self.TitleTokens = UserTokens, TitleTokens
         self.StringCleaner = StringCleaner
         self.occurs = dok_matrix((UserTokens.token_count(),TitleTokens.token_count()))
+        self.occur('/media/kaggle/careerbuilder/data/apps.tsv')
         
-    def occur(self, apps_f='/media/kaggle/careerbuilder/data/apps.tsv'):
+    def occur(self, apps_f):
         f = open(apps_f)
         f.readline()
         for l in f:
@@ -118,8 +211,9 @@ class UserTitleHistoricalOccurs(Occurs):
         self.UserTokens, self.TitleTokens = UserTokens, TitleTokens
         self.StringCleaner = StringCleaner
         self.occurs = dok_matrix((UserTokens.token_count(),TitleTokens.token_count()))
+        self.occur('/media/kaggle/careerbuilder/data/user_history.tsv')
         
-    def occur(self, apps_f='/media/kaggle/careerbuilder/data/user_history.tsv'):
+    def occur(self, apps_f):
         f = open(apps_f)
         f.readline()
         for l in f:
