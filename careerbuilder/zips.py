@@ -63,3 +63,4 @@ class Zips(object):
 if __name__ == "__main__":
     Zips = Zips()
     assert int(Zips.zip_dist(92064,93313)) == 192
+    assert Zips.cities[('poway','ca')]['zip'] == 92064

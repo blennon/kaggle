@@ -57,7 +57,7 @@ class Users(Things):
         u['City'] = line[3]
         u['State'] = line[4]
         u['Country'] = line[5]
-        u['ZipCode'] = Users.parse_zip(line[6])
+        u['Zip'] = Users.parse_zip(line[6])
         u['DegreeType'] = line[7]
         u['Major'] = line[8]
         u['GraduationDate'] = line[9]
@@ -83,7 +83,7 @@ class Jobs(Things):
         j['City'] = line[5]
         j['State'] = line[6]
         j['Country'] = line[7]
-        j['Zip5'] = Jobs.parse_zip(line[8])
+        j['Zip'] = Jobs.parse_zip(line[8])
         j['StartDate'] = line[9]
         j['EndDate'] = line[10]
         return int(line[0]),j
