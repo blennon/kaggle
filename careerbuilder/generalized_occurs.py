@@ -63,7 +63,7 @@ class AppJobZipUserZip(Occurs):
         for l in apps_f:
             l = l.strip().split('\t')
             u_tok, j_tok = int(l[0]), int(l[-1])
-            u_zip, j_zip = self.Users[u_tok]['ZipCode'], self.Jobs[j_tok]['Zip5']
+            u_zip, j_zip = self.Users[u_tok]['Zip'], self.Jobs[j_tok]['Zip']
             if u_zip is None or j_zip is None:
                 continue
             try:
@@ -114,7 +114,7 @@ class JobZipOccurs(Occurs):
         
     def co_occur(self):
         for j_tok, j_id in self.JobTokens.tokens2ids.iteritems():
-            j_zip = self.Jobs[j_tok]['Zip5']
+            j_zip = self.Jobs[j_tok]['Zip']
             if j_zip is not None:
                 try:
                     self.occurs[self.ZipTokens.token2id(j_zip),j_id] = 1.0
@@ -257,7 +257,7 @@ class UserZipOccurs(Occurs):
         
     def co_occur(self):
         for u_tok, u_id in self.UserTokens.tokens2ids.iteritems():
-            u_zip = self.Users[u_tok]['ZipCode']
+            u_zip = self.Users[u_tok]['Zip']
             if u_zip is not None:
                 try:
                     self.occurs[u_id,self.ZipTokens.token2id(u_zip)] = 1.0
