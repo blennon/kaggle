@@ -170,7 +170,7 @@ class UserMajorOccurs(Occurs):
         
     def occur(self):
         for u_tok, u_ind in self.UserTokens.tokens2ids.iteritems():
-            u_major = self.StringCleaner.clean(self.Users[u_tok]['Major'])
+            u_major = self.StringCleaner.clean(self.Users[u_tok]['Major'],rem_stopwords=False)
             for w in u_major.split(' '):
                 try:
                     w_ind = self.MajorTokens.token2id(w)
@@ -196,7 +196,7 @@ class UserTitleAppliedOccurs(Occurs):
             u_tok, j_tok = int(l[0]), int(l[-1])
             u_ind = self.UserTokens.token2id(u_tok)
             j_title = self.Jobs[j_tok]['Title']
-            j_title = self.StringCleaner.clean(j_title)
+            j_title = self.StringCleaner.clean(j_title,rem_stopwords=False)
             for w in j_title.split(' '):
                 try:
                     w_ind = self.TitleTokens.token2id(w)
@@ -224,7 +224,7 @@ class UserTitleHistoricalOccurs(Occurs):
                 u_ind = self.UserTokens.token2id(u_tok)
             except KeyError:
                 continue
-            u_title = self.StringCleaner.clean(u_title)
+            u_title = self.StringCleaner.clean(u_title,rem_stopwords=False)
             for w in u_title.split(' '):
                 try:
                     w_ind = self.TitleTokens.token2id(w)
