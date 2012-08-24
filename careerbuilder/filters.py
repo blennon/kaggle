@@ -148,7 +148,7 @@ class WindowIndices(object):
         self.wind_dates = self.load_window_dates(wind_dates_f)
         self.wid_to_jind = self.wind2ind(Thing, ThingTokens)
     
-    def __get__(self, window_id):
+    def __getitem__(self, window_id):
         return self.wid_to_jind[window_id]
     
     def wind2ind(self, Thing, Tokens, test_period_only=True):
