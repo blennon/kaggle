@@ -68,7 +68,8 @@ class JobDistanceFilter(Filter):
         self.Zips = Zips
         self.job_latlong = self.job_inds_to_latlong()
     
-    def filter(self, u_tok, j_inds, max_dist=None, return_dists=False):
+    def filter(self, u_tok, j_inds, max_dist=None, return_dists=False,
+               return_all=False):
         '''
         Filter a list of job indices by their distance from the user
 
@@ -83,6 +84,8 @@ class JobDistanceFilter(Filter):
                   in order to pass through the filter
         return_dists: boolean
                       if true, return a list of tuples, e.g. [(j_ind, dist),...]  
+        return_all: boolean
+                    if true, returns values of -1 where we don't know distance
         
         Returns
         -------
@@ -90,9 +93,13 @@ class JobDistanceFilter(Filter):
         '''
         if max_dist is None and return_dists == False:
             raise Exception('must set max_dist to float or return_dists to True')
-            
+        
+        if return_all:
+            thr = -1.0    
         u_lat_long = self.find_lat_long(u_tok, self.Users)
         if u_lat_long is None:
+            if return_all:
+                return -1.0 * ones_like(j_inds)
             return []
         u_lat, u_long = u_lat_long
         j_lats, j_longs = self.job_latlong[j_inds,0], self.job_latlong[j_inds,1]
@@ -101,9 +108,9 @@ class JobDistanceFilter(Filter):
         dists[j_longs == 0.0] = -1
         if not return_dists:
             dists[dists > max_dist] = -1
-            return list(j_inds[dists >= 0.0])
+            return list(j_inds[dists >= thr])
         else:
-            return izip(list(j_inds[dists >= 0.0]), list(dists[dists >= 0.0]))
+            return izip(list(j_inds[dists >= thr]), list(dists[dists >= thr]))
     
     def job_inds_to_latlong(self):
         '''
