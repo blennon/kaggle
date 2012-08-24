@@ -51,7 +51,15 @@ class JobsAppliedFilter(Filter):
                             User-Jobs applied matrix
         '''
         return self.UserJobOccurs
-    
+
+    def get_shape(self):
+        '''
+        Returns
+        -------
+        (n,m) - shape of the UserJobOccurs
+        '''
+        return self.UserJobOccurs.shape
+
 class JobDistanceFilter(Filter):
     
     def __init__(self, Users, Jobs, JobTokens, Zips):
