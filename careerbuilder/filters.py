@@ -1,6 +1,7 @@
 import datetime
 from itertools import izip
 from scipy.io import mmread
+from numpy.lib.arraysetops import setdiff1d
 
 class Filter(object):
        
