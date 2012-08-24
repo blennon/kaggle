@@ -1,7 +1,6 @@
 import sys
 execfile('/media/lib/python/set_paths.py')
 sys.path.append('/media/git/wordsim/src/')
-from similarity import Similarity
 from scipy.io import mmread
 from pylab import *
 
@@ -11,8 +10,8 @@ class UserJobSimilarity(object):
                  svec_prefix = 'stitched_occurs.mtx', n_svs=200, norm=True):
         self.U, self.J = self.load_mats(mat_dir, sval_name, svec_prefix, n_svs)
         if norm:
-            self.U = Similarity._norm_mat(self.U)
-            self.J = Similarity._norm_mat(self.J)
+            self.U = UserJobSimilarity._norm_mat(self.U)
+            self.J = UserJobSimilarity._norm_mat(self.J)
         
     def load_mats(self, mat_dir, sval_name, svec_prefix, n_svs):
         '''
@@ -83,3 +82,16 @@ class UserJobSimilarity(object):
     def order_similarity(sims, inds):
         sort_index = np.argsort(sims)[::-1] # descending order
         return inds[sort_index],sims[sort_index]
+
+    @staticmethod
+    def _norm_mat(mat, nan_check=True):
+        '''normalizes each row in 'mat' by their l2 norm'''
+        if nan_check:
+            if np.isnan(mat).any():
+                raise Exception('NaNs detected in matrix to be normalized')
+        norm = (mat**2).sum(axis=1)**.5
+        mat[norm>0,:] /= norm[norm>0][...,None]
+        if nan_check:
+            if np.isnan(mat).any():
+                raise Exception('NaNs detected in normalized matrix')
+        return mat
