@@ -13,9 +13,9 @@ class Filter(object):
 class JobsAppliedFilter(Filter):
     
     def __init__(self, user_job_occurs_f):
-        self.UserJobOccurs = self.load_known_job_apps(user_job_occurs_f)
+        self.UserJobOccurs = mmread(user_job_occurs_f).tocsr()
     
-    def filter(self, u_ind, job_inds):
+    def filter(self, u_ind, job_inds, return_appd=False):
         '''
         Removes the jobs the user has already applied to.
 
@@ -25,32 +25,32 @@ class JobsAppliedFilter(Filter):
                The index in the User-Job application co-occur matrix
         job_inds: list of ints
                   This is a list of job indices   
-        
+        return_appd: boolean
+                     if True, return the jobs applied to by u_ind as well
+                     
         Returns
         -------
         A filted list of job indices excluding the indices to jobs the user
         has already applied for.
+        
+        Optionally, returns the jobs the user applied to as well.
         '''
         
         applied_inds = nonzero(self.UserJobOccurs[u_ind,:])[1]
-        return setdiff1d(job_inds,applied_inds)
-    
-    def load_known_job_apps(self, train_occurs_f):
-        '''
-        Loads a sparse matrix of User-Job applications
-
-        Parameters
-        ----------
-        train_occurs_f: str
-                        The location on disk of the user-job matrix containing
-                        training data
+        filtered = setdiff1d(job_inds,applied_inds)
+        if return_appd:
+            return filtered, applied_inds
+        else:
+            return filtered 
         
+    def get_occurs(self):
+        '''
         Returns
         -------
-        Scipy Sparse CSR matrix of user-job applications
+        self.UserJobOccurs: CSR Scipy Sparse Matrix
+                            User-Jobs applied matrix
         '''
-        return mmread(train_occurs_f).tocsr()
-    
+        return self.UserJobOccurs
     
 class JobDistanceFilter(Filter):
     
