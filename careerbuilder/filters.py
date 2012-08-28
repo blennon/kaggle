@@ -98,8 +98,8 @@ class JobDistanceFilter(Filter):
             thr = -1.0    
         u_lat_long = self.find_lat_long(u_tok, self.Users)
         if u_lat_long is None:
-            if return_all:
-                return -1.0 * ones_like(j_inds)
+            if return_all and return_dists:
+                return j_inds, -1.0 * ones_like(j_inds)
             return []
         u_lat, u_long = u_lat_long
         j_lats, j_longs = self.job_latlong[j_inds,0], self.job_latlong[j_inds,1]
@@ -110,7 +110,8 @@ class JobDistanceFilter(Filter):
             dists[dists > max_dist] = -1
             return list(j_inds[dists >= thr])
         else:
-            return izip(list(j_inds[dists >= thr]), list(dists[dists >= thr]))
+            assert j_inds.shape == dists[dists >= thr].shape
+            return j_inds[dists >= thr], dists[dists >= thr]
     
     def job_inds_to_latlong(self):
         '''

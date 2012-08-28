@@ -1,4 +1,7 @@
+import numpy
+numpy.seterr(all='raise')
 from pylab import *
+
 
 class Zips(object):
     
@@ -58,7 +61,14 @@ class Zips(object):
                     cos(radians(lat_B)) *
                     cos(radians(long_A - long_B)))
 
-        return (degrees(arccos(distance))) * 69.09
+        try:
+            return (degrees(arccos(distance))) * 69.09
+        except FloatingPointError:
+            if isinstance(distance,float):
+                distance = 1.0
+            else:
+                distance[distance>1.0] = 1.0
+            return (degrees(arccos(distance))) * 69.09
 
 if __name__ == "__main__":
     Zips = Zips()
