@@ -35,16 +35,16 @@ class DataGrabber(object):
         sensor: str
         start_time: datetime object
         end_time: datetime object
-        
-        ##########################################
-        TO DO: handle two files with sensor in it
-        ##########################################
         '''
+        dfs = []
         dir = self.subject_dirs[(subject,start_time,end_time)]
         for f in os.listdir(dir):
             if sensor in f and 'log' not in f and 'raw' not in f:
-                return read_csv(dir+'/'+f, parse_dates=True, index_col=-1)
-        return None
+                dfs.append(read_csv(dir+'/'+f, parse_dates=True, index_col=-1))
+        if len(dfs) > 0:
+            return concat(dfs)
+        else:
+            return None
 
     def get_start_times_for(self, subject):
         """"return a list of times when recordings were made for 'subject'"""
