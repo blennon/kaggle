@@ -37,7 +37,7 @@ class DataGrabber(object):
         end_time: datetime object
         '''
         dfs = []
-        dir = self.subject_dirs[(subject,start_time,end_time)]
+        dir = self.data_dir + self.subject_dirs[(subject,start_time,end_time)]
         for f in os.listdir(dir):
             if sensor in f and 'log' not in f and 'raw' not in f:
                 dfs.append(read_csv(dir+'/'+f, parse_dates=True, index_col=-1))
@@ -78,6 +78,7 @@ class DataGrabber(object):
             if f[0] == '.' or '_' not in f:
                 continue
             flist = f.split('_')
+            if len(flist) < 7: continue
             name = flist[1]
             startdate, starttime = flist[-4:-2]
             enddate,endtime = flist[-2:]
@@ -97,3 +98,5 @@ class DataGrabber(object):
         y,mo,d = int(ymd[0:4]),int(ymd[4:6]),int(ymd[6:])
         h,min,s = int(hms[0:2]),int(hms[2:4]),int(hms[4:])
         return dt.datetime(y,mo,d,h,min,s)
+
+    
