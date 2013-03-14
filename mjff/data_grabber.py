@@ -65,6 +65,7 @@ class DataGrabber(object):
                 continue
             flist = f.split('_')
             name = flist[1]
+            if name == 'DEFAULT' or name == 'TESTCLIQ': continue
             subjects.add(name)
         return list(subjects)
             
@@ -80,6 +81,7 @@ class DataGrabber(object):
             flist = f.split('_')
             if len(flist) < 7: continue
             name = flist[1]
+            if name not in self.subject_list: continue
             startdate, starttime = flist[-4:-2]
             enddate,endtime = flist[-2:]
             start = DataGrabber.str_to_datetime(startdate, starttime)
