@@ -8,7 +8,22 @@ class DataGrabber(object):
     def __init__(self, data_dir='/home/bill/personal/MJFF-Data/'):
         
         self.data_dir = data_dir
-        self.subject_list = self.list_subjects()
+        self.subjects = {'IRIS':'PD',
+                         'SWEETPEA':'CONTROL',
+                         'FLOX':'PD',
+                         'SUNFLOWER':'CONTROL',
+                         'APPLE':'CONTROL',
+                         'PEONY':'PD',
+                         'ROSE':'CONTROL',
+                         'CHERRY':'PD',
+                         'VIOLET':'PD',
+                         'CROCUS':'PD',
+                         'DAFODIL':'CONTROL',
+                         'DAISY':'PD',
+                         'ORANGE':'CONTROL',
+                         'LILLY':'CONTROL',
+                         'MAPLE':'PD',
+                         'ORCHID':'PD'}
         self.subject_dirs = self.build_subject_dir_dict()
         self.sensor_list = ['accel','audio','batt','cmpss','comms','gps',
                             'light','main','meta','prox','recorder']
@@ -53,21 +68,6 @@ class DataGrabber(object):
             if s == subject:
                 times.append(start)
         return times
-    
-    def list_subjects(self):
-        '''
-        parse through the directory names and assemble a list of
-        unique subject names
-        '''
-        subjects = set()
-        for f in os.listdir(self.data_dir):
-            if f[0] == '.' or '_' not in f:
-                continue
-            flist = f.split('_')
-            name = flist[1]
-            if name == 'DEFAULT' or name == 'TESTCLIQ': continue
-            subjects.add(name)
-        return list(subjects)
             
     def build_subject_dir_dict(self):
         '''
@@ -80,15 +80,24 @@ class DataGrabber(object):
                 continue
             flist = f.split('_')
             if len(flist) < 7: continue
-            name = flist[1]
-            if name not in self.subject_list: continue
+            name = DataGrabber.correct_name(flist[1])
+            if name not in self.subjects: continue
             startdate, starttime = flist[-4:-2]
             enddate,endtime = flist[-2:]
             start = DataGrabber.str_to_datetime(startdate, starttime)
             end = DataGrabber.str_to_datetime(enddate, endtime)
             subject_dir[(name,start,end)] = f
         return subject_dir
-            
+    
+    @staticmethod
+    def correct_name(name):
+        '''
+        Fix name spelling errors in data set file names
+        '''
+        if name == 'DAISEY': return 'DAISY'
+        if name == 'LILY': return 'LILLY'
+        return name
+        
     @staticmethod
     def str_to_datetime(ymd, hms):
         '''
